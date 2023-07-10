@@ -4,8 +4,7 @@ import org.bukkit.Bukkit;
 
 import java.io.File;
 
-public class World {
-
+public class WorldHelper {
     public static String getWorldFromArgs(String[] args) {
         String world = null;
 
@@ -17,7 +16,7 @@ public class World {
     }
 
     public static boolean checkIfWorldFolderExists(String name) {
-        String path = Bukkit.getWorldContainer().getPath() + "/" + name;
+        String path = Bukkit.getWorldContainer().getPath() + File.separator + name;
         File folder = new File(path);
 
         return folder.exists() && folder.isDirectory();

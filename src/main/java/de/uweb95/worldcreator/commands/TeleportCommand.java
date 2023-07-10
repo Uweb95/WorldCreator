@@ -4,6 +4,8 @@ import de.uweb95.worldcreator.util.Message;
 import de.uweb95.worldcreator.util.WorldConfiguration;
 import de.uweb95.worldcreator.util.WorldHelper;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,7 +14,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoadWorldCommand implements CommandInterface {
+public class TeleportCommand implements CommandInterface {
     @Override
     public boolean checkPermissions(Player player) {
         return player.hasPermission("wc.load");
@@ -27,10 +29,20 @@ public class LoadWorldCommand implements CommandInterface {
             return true;
         }
 
-        new WorldCreator(worldName).createWorld();
-        WorldConfiguration.getInstance().setWorldLoad(worldName, true);
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(Message.pluginMessage("This command only works ingame."));
+            return true;
+        }
 
-        sender.sendMessage(Message.pluginMessage("World loaded successfully!"));
+        Player player = (Player) sender;
+        World targetWorld = Bukkit.getWorld(worldName);
+
+        if (targetWorld == null) {
+            sender.sendMessage(Message.pluginMessage("This world does not exist."));
+            return true;
+        }
+
+        player.teleport(targetWorld.getSpawnLocation());
 
         return true;
     }
@@ -40,7 +52,9 @@ public class LoadWorldCommand implements CommandInterface {
         List<String> options = new ArrayList<>();
 
         if (args.length == 2) {
-            options.add("<WORLD NAME>");
+            for (World world : Bukkit.getWorlds()) {
+                options.add(world.getName());
+            }
         }
 
         return options;

@@ -1,4 +1,4 @@
-package de.uweb95.minebay.commands;
+package de.uweb95.worldcreator.commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

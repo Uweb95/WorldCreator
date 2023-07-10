@@ -1,30 +1,48 @@
 package de.uweb95.worldcreator.commands;
 
 import de.uweb95.worldcreator.util.Message;
+import de.uweb95.worldcreator.util.WorldConfiguration;
+import de.uweb95.worldcreator.util.WorldHelper;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
-public class UnloadWorldCommand implements CommandInterface {
+public class LoadWorldCommand implements CommandInterface {
     @Override
     public boolean checkPermissions(Player player) {
-        return player.hasPermission("wc.unload") || player.hasPermission("wc.admin");
+        return player.hasPermission("wc.load");
     }
 
     @Override
     public boolean executeCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-        Bukkit.unloadWorld("world_test", false);
+        String worldName = WorldHelper.getWorldFromArgs(args);
+
+        if (worldName == null) {
+            sender.sendMessage(Message.pluginMessage("/wc help"));
+            return true;
+        }
+
+        new WorldCreator(worldName).createWorld();
+        WorldConfiguration.getInstance().setWorldLoad(worldName, true);
+
+        sender.sendMessage(Message.pluginMessage("World loaded successfully!"));
 
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String commandLabel, String[] args) {
-        return null;
+        List<String> options = new ArrayList<>();
+
+        if (args.length == 2) {
+            options.add("<WORLD NAME>");
+        }
+
+        return options;
     }
 }

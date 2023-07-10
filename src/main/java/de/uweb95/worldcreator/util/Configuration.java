@@ -1,6 +1,6 @@
-package de.uweb95.minebay.util;
+package de.uweb95.worldcreator.util;
 
-import de.uweb95.minebay.Minebay;
+import de.uweb95.worldcreator.WorldCreator;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -11,8 +11,11 @@ import java.util.Map;
 public class Configuration {
     private static Map<String, FileConfiguration> configFiles = new HashMap<>();
 
+    /**
+     * Load default plugin config file
+     */
     public static void loadPluginConfig() {
-        Minebay plugin = Minebay.getInstance();
+        WorldCreator plugin = WorldCreator.getInstance();
         File dataFolder = plugin.getDataFolder();
         if (!dataFolder.exists()) dataFolder.mkdir();
 
@@ -26,19 +29,26 @@ public class Configuration {
         }
     }
 
+    /**
+     * Load a yaml configuration file
+     */
     public static void loadConfig(String filename) {
         if (configFiles.containsKey(filename)) {
             return;
         }
 
-        File configFile = new File(Minebay.getInstance().getDataFolder(), filename);
+        File configFile = getFileHandle(filename);
 
         if (!configFile.exists()) {
             configFile.getParentFile().mkdirs();
-            Minebay.getInstance().saveResource(filename, false);
+            WorldCreator.getInstance().saveResource(filename, false);
         }
 
         configFiles.put(filename, YamlConfiguration.loadConfiguration(configFile));
+    }
+
+    public static File getFileHandle(String filename) {
+        return new File(WorldCreator.getInstance().getDataFolder(), filename);
     }
 
     public static FileConfiguration getConfig(String filename) {

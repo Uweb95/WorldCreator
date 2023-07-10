@@ -1,7 +1,8 @@
 package de.uweb95.worldcreator.commands;
 
-import de.uweb95.worldcreator.WorldCreator;
 import de.uweb95.worldcreator.util.Message;
+import de.uweb95.worldcreator.util.WorldConfiguration;
+import de.uweb95.worldcreator.util.WorldHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -9,35 +10,42 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
-public class DeleteWorldCommand implements CommandInterface {
+public class UnloadWorldCommand implements CommandInterface {
     @Override
     public boolean checkPermissions(Player player) {
-        return player.hasPermission("minebay.user") || player.hasPermission("minebay.admin");
+        return player.hasPermission("wc.unload");
     }
 
     @Override
     public boolean executeCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-        World world = Bukkit.getWorld("world_test");
+        String worldName = WorldHelper.getWorldFromArgs(args);
 
-        if (world == null) {
-            sender.sendMessage(Message.pluginMessage(String.format("The world '%s' does not exist", "world_test")));
-            return false;
+        if (worldName == null) {
+            sender.sendMessage(Message.pluginMessage("/wc help"));
+            return true;
         }
 
-        Bukkit.unloadWorld(world, false);
-        File worldFolder = world.getWorldFolder();
+        Bukkit.unloadWorld(worldName, true);
+        WorldConfiguration.getInstance().setWorldLoad(worldName, false);
 
-        if (worldFolder.delete()) {
-            sender.sendMessage(Message.pluginMessage(String.format("The folder for world '%s' does not exist. It might not be deleted.", "world_test")));
-        }
+        sender.sendMessage(Message.pluginMessage("World unloaded successfully!"));
 
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String commandLabel, String[] args) {
-        return null;
+        List<String> options = new ArrayList<>();
+
+        if (args.length == 2) {
+            for (World world : Bukkit.getWorlds()) {
+                options.add(world.getName());
+            }
+        }
+
+        return options;
     }
 }

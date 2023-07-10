@@ -4,6 +4,7 @@ import de.uweb95.worldcreator.util.Message;
 import de.uweb95.worldcreator.util.WorldHelper;
 import org.apache.commons.lang3.SystemUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,21 +13,23 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class GameRuleCommand implements CommandInterface {
+public class RuleCommand implements CommandInterface {
     @Override
     public boolean checkPermissions(Player player) {
         return player.hasPermission("wc.delete");
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean executeCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-        String worldName = WorldHelper.getWorldFromArgs(args);
-
-        if (worldName == null) {
+        if (args.length < 3) {
+            sender.sendMessage(Message.pluginMessage("Not enough options, see /wc help for usage."));
             return true;
         }
 
+        String worldName = WorldHelper.getWorldFromArgs(args);
         World world = Bukkit.getWorld(worldName);
 
         if (world == null) {
@@ -34,20 +37,27 @@ public class GameRuleCommand implements CommandInterface {
             return true;
         }
 
-        File worldFolder = world.getWorldFolder();
-        Bukkit.unloadWorld(world, false);
+        GameRule<?> selectedRule = GameRule.getByName(args[2]);
 
-        if (worldFolder.delete()) {
-            sender.sendMessage(Message.pluginMessage(String.format("The folder for world '%s' does not exist. It might not be deleted.", worldName)));
+        if (selectedRule == null) {
+            sender.sendMessage(Message.pluginMessage(String.format("The game rule '%s' does not exist", args[2])));
             return true;
         }
 
-        sender.sendMessage(Message.pluginMessage("World deleted successfully!"));
+        if (args.length == 4) {
+            String newValue = args[3];
 
-        if (SystemUtils.OS_NAME.contains("Windows") && worldFolder.exists()) {
-            worldFolder.deleteOnExit();
-            sender.sendMessage(Message.pluginMessage("Deleting the world folder does not work correctly on Windows. We'll try to delete it when the server stops."));
+            if (selectedRule.getType() == Boolean.class) {
+                world.setGameRule((GameRule<Boolean>) selectedRule, Objects.equals(newValue, "true"));
+            } else if (selectedRule.getType() == Integer.class) {
+                world.setGameRule((GameRule<Integer>) selectedRule, Integer.getInteger(newValue));
+            }
+
+            sender.sendMessage(Message.pluginMessage(selectedRule.getName() + " is now " + world.getGameRuleValue(selectedRule)));
+            return true;
         }
+
+        sender.sendMessage(Message.pluginMessage(selectedRule.getName() + ": " + world.getGameRuleValue(selectedRule)));
 
         return true;
     }
@@ -59,6 +69,25 @@ public class GameRuleCommand implements CommandInterface {
         if (args.length == 2) {
             for (World world : Bukkit.getWorlds()) {
                 options.add(world.getName());
+            }
+        } else if (args.length == 3) {
+            for (GameRule<?> rule : GameRule.values()) {
+                if(rule.getName().contains(args[2])){
+                    options.add(rule.getName());
+                }
+            }
+        } else if (args.length == 4) {
+            GameRule<?> selectedRule = GameRule.getByName(args[2]);
+
+            if (selectedRule != null) {
+                if (selectedRule.getType() == Boolean.class) {
+                    options.add("true");
+                    options.add("false");
+                } else {
+                    options.add("<number>");
+                }
+            } else {
+                options.add("INVALID GAME RULE!");
             }
         }
 

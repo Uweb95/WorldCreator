@@ -1,6 +1,6 @@
-package de.uweb95.minebay.commands;
+package de.uweb95.worldcreator.commands;
 
-import de.uweb95.minebay.util.Message;
+import de.uweb95.worldcreator.util.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -10,7 +10,7 @@ import java.util.List;
 public class VersionCommand implements CommandInterface {
     @Override
     public boolean checkPermissions(Player player) {
-        return player.hasPermission("minebay.user") || player.hasPermission("minebay.admin");
+        return player.hasPermission("wc.version");
     }
 
     @Override

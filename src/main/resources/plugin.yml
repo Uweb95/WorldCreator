@@ -1,8 +1,48 @@
 name: WorldCreator
 version: '${project.version}'
 main: de.uweb95.worldcreator.WorldCreator
-api-version: 1.20
+api-version: "1.19"
 prefix: WorldCreator
-authors: [Uweb95]
+authors: [ Uweb95 ]
 description: A simple plugin to generate and import worlds
 website: https://mc.lunar-software.eu
+commands:
+  wc:
+    description: Plugin main command
+    usage: /wc
+    permission: wc
+  worldcreator:
+    description: Alternative plugin main command
+    usage: /worldcreator
+    permission: wc
+permissions:
+  wc.create:
+    description: Permission to use the '/wc create' command
+    default: false
+  wc.import:
+    description: Permission to use the '/wc import' command
+    default: false
+  wc.delete:
+    description: Permission to use the '/wc delete' command
+    default: false
+  wc.load:
+    description: Permission to use the '/wc load' command
+    default: false
+  wc.unload:
+    description: Permission to use the '/wc unload' command
+    default: false
+  wc.list:
+    description: Permission to use the '/wc list' command
+    default: false
+  wc.help:
+    description: Permission to use the '/wc help' command
+    default: true
+  wc.version:
+    description: Permission to use the '/wc version' command
+    default: true
+  wc.teleport:
+    description: Permission to use the '/wc tp' command
+    default: false
+  wc.admin:
+    description: Permission to use all /wc commands
+    default: false
